@@ -1,4 +1,4 @@
-use chrono::{naive::NaiveDate, Datelike, Weekday};
+use chrono::{naive::NaiveDate, Datelike, Duration, Weekday};
 
 pub const WORK_WEEK: [Weekday; 5] = [
     Weekday::Mon,
@@ -30,6 +30,22 @@ impl Calendar {
 
     pub fn is_business_day(&self, date: &NaiveDate) -> bool {
         self.is_working_day(date) && !self.holidays.contains(&date)
+    }
+
+    pub fn roll_forward(&self, date: &NaiveDate) -> NaiveDate {
+        let mut result = date.clone();
+        while !self.is_business_day(&result) {
+            result += Duration::days(1);
+        }
+        result
+    }
+
+    pub fn roll_backward(&self, date: &NaiveDate) -> NaiveDate {
+        let mut result = date.clone();
+        while !self.is_business_day(&result) {
+            result -= Duration::days(1);
+        }
+        result
     }
 
     fn is_working_day(&self, date: &NaiveDate) -> bool {
@@ -71,5 +87,43 @@ mod tests {
         let cal = Calendar::new(WORK_WEEK.to_vec(), vec![monday], vec![]);
 
         assert_eq!(cal.is_business_day(&monday), false);
+    }
+
+    #[test]
+    fn sat_rolls_forward_to_tues() {
+        let sat = NaiveDate::from_ymd(2022, 10, 01);
+        let holiday_mon = NaiveDate::from_ymd(2022, 10, 03);
+        let cal = Calendar::new(WORK_WEEK.to_vec(), vec![holiday_mon], vec![]);
+
+        let business_tue = NaiveDate::from_ymd(2022, 10, 04);
+
+        assert_eq!(cal.roll_forward(&sat), business_tue);
+    }
+
+    #[test]
+    fn mon_rolls_forward_same_day() {
+        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let cal = Calendar::new(WORK_WEEK.to_vec(), vec![], vec![]);
+
+        assert_eq!(cal.roll_forward(&mon), mon);
+    }
+
+    #[test]
+    fn sun_rolls_backward_to_thu() {
+        let sun = NaiveDate::from_ymd(2022, 10, 02);
+        let holiday_fri = NaiveDate::from_ymd(2022, 09, 30);
+        let cal = Calendar::new(WORK_WEEK.to_vec(), vec![holiday_fri], vec![]);
+
+        let business_thu = NaiveDate::from_ymd(2022, 09, 29);
+
+        assert_eq!(cal.roll_backward(&sun), business_thu);
+    }
+
+    #[test]
+    fn mon_rolls_backward_same_day() {
+        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let cal = Calendar::new(WORK_WEEK.to_vec(), vec![], vec![]);
+
+        assert_eq!(cal.roll_backward(&mon), mon);
     }
 }
