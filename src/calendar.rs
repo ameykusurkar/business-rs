@@ -50,66 +50,66 @@ impl Calendar {
         })
     }
 
-    pub fn is_business_day(&self, date: &NaiveDate) -> bool {
+    pub fn is_business_day(&self, date: NaiveDate) -> bool {
         self.is_working_day(date) && !self.holidays.contains(&date)
     }
 
-    pub fn roll_forward(&self, date: &NaiveDate) -> NaiveDate {
-        let mut result = date.clone();
-        while !self.is_business_day(&result) {
+    pub fn roll_forward(&self, date: NaiveDate) -> NaiveDate {
+        let mut result = date;
+        while !self.is_business_day(result) {
             result += Duration::days(1);
         }
         result
     }
 
-    pub fn roll_backward(&self, date: &NaiveDate) -> NaiveDate {
-        let mut result = date.clone();
-        while !self.is_business_day(&result) {
+    pub fn roll_backward(&self, date: NaiveDate) -> NaiveDate {
+        let mut result = date;
+        while !self.is_business_day(result) {
             result -= Duration::days(1);
         }
         result
     }
 
-    pub fn next_business_day(&self, date: &NaiveDate) -> NaiveDate {
-        let mut result = date.clone();
+    pub fn next_business_day(&self, date: NaiveDate) -> NaiveDate {
+        let mut result = date;
         loop {
             result += Duration::days(1);
-            if self.is_business_day(&result) {
+            if self.is_business_day(result) {
                 break;
             }
         }
         result
     }
 
-    pub fn previous_business_day(&self, date: &NaiveDate) -> NaiveDate {
-        let mut result = date.clone();
+    pub fn previous_business_day(&self, date: NaiveDate) -> NaiveDate {
+        let mut result = date;
         loop {
             result -= Duration::days(1);
-            if self.is_business_day(&result) {
+            if self.is_business_day(result) {
                 break;
             }
         }
         result
     }
 
-    pub fn add_business_days(&self, date: &NaiveDate, delta: u32) -> NaiveDate {
-        let mut result = self.roll_forward(&date);
+    pub fn add_business_days(&self, date: NaiveDate, delta: u32) -> NaiveDate {
+        let mut result = self.roll_forward(date);
         for _ in 0..delta {
-            result = self.next_business_day(&result);
+            result = self.next_business_day(result);
         }
         result
     }
 
-    pub fn subtract_business_days(&self, date: &NaiveDate, delta: u32) -> NaiveDate {
-        let mut result = self.roll_forward(&date);
+    pub fn subtract_business_days(&self, date: NaiveDate, delta: u32) -> NaiveDate {
+        let mut result = self.roll_forward(date);
         for _ in 0..delta {
-            result = self.previous_business_day(&result);
+            result = self.previous_business_day(result);
         }
         result
     }
 
-    fn is_working_day(&self, date: &NaiveDate) -> bool {
-        self.extra_working_dates.contains(date) || self.working_days.contains(&date.weekday())
+    fn is_working_day(&self, date: NaiveDate) -> bool {
+        self.extra_working_dates.contains(&date) || self.working_days.contains(&date.weekday())
     }
 }
 
@@ -155,7 +155,7 @@ mod tests {
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
         let saturday = NaiveDate::from_ymd(2022, 10, 01);
 
-        assert_eq!(cal.is_business_day(&saturday), false);
+        assert_eq!(cal.is_business_day(saturday), false);
     }
 
     #[test]
@@ -163,7 +163,7 @@ mod tests {
         let saturday = NaiveDate::from_ymd(2022, 10, 01);
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![saturday]).unwrap();
 
-        assert_eq!(cal.is_business_day(&saturday), true);
+        assert_eq!(cal.is_business_day(saturday), true);
     }
 
     #[test]
@@ -171,7 +171,7 @@ mod tests {
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
         let monday = NaiveDate::from_ymd(2022, 10, 03);
 
-        assert_eq!(cal.is_business_day(&monday), true);
+        assert_eq!(cal.is_business_day(monday), true);
     }
 
     #[test]
@@ -179,7 +179,7 @@ mod tests {
         let monday = NaiveDate::from_ymd(2022, 10, 03);
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![monday], vec![]).unwrap();
 
-        assert_eq!(cal.is_business_day(&monday), false);
+        assert_eq!(cal.is_business_day(monday), false);
     }
 
     #[test]
@@ -190,7 +190,7 @@ mod tests {
 
         let business_tue = NaiveDate::from_ymd(2022, 10, 04);
 
-        assert_eq!(cal.roll_forward(&sat), business_tue);
+        assert_eq!(cal.roll_forward(sat), business_tue);
     }
 
     #[test]
@@ -198,7 +198,7 @@ mod tests {
         let mon = NaiveDate::from_ymd(2022, 10, 03);
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
 
-        assert_eq!(cal.roll_forward(&mon), mon);
+        assert_eq!(cal.roll_forward(mon), mon);
     }
 
     #[test]
@@ -209,7 +209,7 @@ mod tests {
 
         let business_thu = NaiveDate::from_ymd(2022, 09, 29);
 
-        assert_eq!(cal.roll_backward(&sun), business_thu);
+        assert_eq!(cal.roll_backward(sun), business_thu);
     }
 
     #[test]
@@ -217,7 +217,7 @@ mod tests {
         let mon = NaiveDate::from_ymd(2022, 10, 03);
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
 
-        assert_eq!(cal.roll_backward(&mon), mon);
+        assert_eq!(cal.roll_backward(mon), mon);
     }
 
     #[test]
@@ -228,7 +228,7 @@ mod tests {
 
         let business_tue = NaiveDate::from_ymd(2022, 10, 04);
 
-        assert_eq!(cal.next_business_day(&sat), business_tue);
+        assert_eq!(cal.next_business_day(sat), business_tue);
     }
 
     #[test]
@@ -237,7 +237,7 @@ mod tests {
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
 
         let tue = NaiveDate::from_ymd(2022, 10, 04);
-        assert_eq!(cal.next_business_day(&mon), tue);
+        assert_eq!(cal.next_business_day(mon), tue);
     }
 
     #[test]
@@ -248,7 +248,7 @@ mod tests {
 
         let business_thu = NaiveDate::from_ymd(2022, 09, 29);
 
-        assert_eq!(cal.previous_business_day(&sun), business_thu);
+        assert_eq!(cal.previous_business_day(sun), business_thu);
     }
 
     #[test]
@@ -257,7 +257,7 @@ mod tests {
         let cal = Calendar::try_new(WORK_WEEK.to_vec(), vec![], vec![]).unwrap();
 
         let fri = NaiveDate::from_ymd(2022, 09, 30);
-        assert_eq!(cal.previous_business_day(&mon), fri);
+        assert_eq!(cal.previous_business_day(mon), fri);
     }
 
     #[test]
@@ -268,7 +268,7 @@ mod tests {
 
         let business_thu = NaiveDate::from_ymd(2022, 10, 06);
 
-        assert_eq!(cal.add_business_days(&sat, 2), business_thu);
+        assert_eq!(cal.add_business_days(sat, 2), business_thu);
     }
 
     #[test]
@@ -278,7 +278,7 @@ mod tests {
 
         let wed = NaiveDate::from_ymd(2022, 10, 05);
 
-        assert_eq!(cal.add_business_days(&mon, 2), wed);
+        assert_eq!(cal.add_business_days(mon, 2), wed);
     }
 
     #[test]
@@ -289,7 +289,7 @@ mod tests {
 
         let business_wed = NaiveDate::from_ymd(2022, 09, 28);
 
-        assert_eq!(cal.subtract_business_days(&sun, 2), business_wed);
+        assert_eq!(cal.subtract_business_days(sun, 2), business_wed);
     }
 
     #[test]
@@ -299,7 +299,7 @@ mod tests {
 
         let mon = NaiveDate::from_ymd(2022, 10, 03);
 
-        assert_eq!(cal.subtract_business_days(&wed, 2), mon);
+        assert_eq!(cal.subtract_business_days(wed, 2), mon);
     }
 
     #[test]
