@@ -1,16 +1,50 @@
 use std::collections::HashSet;
 
 use chrono::{naive::NaiveDate, Datelike, Duration, Weekday};
+use serde::Deserialize;
 
-#[derive(Debug, PartialEq)]
+const WORK_WEEK: [Weekday; 5] = [
+    Weekday::Mon,
+    Weekday::Tue,
+    Weekday::Wed,
+    Weekday::Thu,
+    Weekday::Fri,
+];
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(try_from = "CalendarUnchecked")]
 pub struct Calendar {
     working_days: Vec<Weekday>,
     holidays: HashSet<NaiveDate>,
     extra_working_dates: HashSet<NaiveDate>,
 }
 
+#[derive(Debug, PartialEq, Deserialize)]
+struct CalendarUnchecked {
+    working_days: Option<Vec<Weekday>>,
+    holidays: Option<Vec<NaiveDate>>,
+    extra_working_dates: Option<Vec<NaiveDate>>,
+}
+
+impl TryFrom<CalendarUnchecked> for Calendar {
+    type Error = Error;
+    fn try_from(cal: CalendarUnchecked) -> Result<Self, Self::Error> {
+        Calendar::new(
+            cal.working_days.unwrap_or(WORK_WEEK.to_vec()),
+            cal.holidays.unwrap_or_default(),
+            cal.extra_working_dates.unwrap_or_default(),
+        )
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Error(String);
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 impl Calendar {
     pub fn new(
@@ -98,14 +132,6 @@ impl Calendar {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    const WORK_WEEK: [Weekday; 5] = [
-        Weekday::Mon,
-        Weekday::Tue,
-        Weekday::Wed,
-        Weekday::Thu,
-        Weekday::Fri,
-    ];
 
     #[test]
     fn holiday_extra_working_overlap_invalid() {
@@ -270,5 +296,59 @@ mod tests {
         let mon = NaiveDate::from_ymd(2022, 10, 03);
 
         assert_eq!(cal.subtract_business_days(&wed, 2), mon);
+    }
+
+    #[test]
+    fn parse_yaml() {
+        let input = "
+            working_days:
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+
+            holidays:
+              - 2022-01-01
+              - 2012-12-25
+
+            extra_working_dates:
+              - 2022-11-09
+        ";
+        let cal: Calendar = serde_yaml::from_str(input).unwrap();
+
+        let expected = Calendar::new(
+            WORK_WEEK.to_vec(),
+            vec![
+                NaiveDate::from_ymd(2022, 1, 1),
+                NaiveDate::from_ymd(2012, 12, 25),
+            ],
+            vec![NaiveDate::from_ymd(2022, 11, 9)],
+        )
+        .unwrap();
+
+        assert_eq!(cal, expected);
+    }
+
+    #[test]
+    fn parse_yaml_with_defaults() {
+        let input = "
+            holidays:
+              - 2022-01-01
+              - 2012-12-25
+        ";
+        let cal: Calendar = serde_yaml::from_str(input).unwrap();
+
+        let expected = Calendar::new(
+            WORK_WEEK.to_vec(),
+            vec![
+                NaiveDate::from_ymd(2022, 1, 1),
+                NaiveDate::from_ymd(2012, 12, 25),
+            ],
+            vec![],
+        )
+        .unwrap();
+
+        assert_eq!(cal, expected);
     }
 }
