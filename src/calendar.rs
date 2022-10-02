@@ -51,7 +51,10 @@ impl Calendar {
     }
 
     pub fn is_business_day(&self, date: NaiveDate) -> bool {
-        self.is_working_day(date) && !self.holidays.contains(&date)
+        let is_working_day =
+            self.extra_working_dates.contains(&date) || self.working_days.contains(&date.weekday());
+        let is_holiday = self.holidays.contains(&date);
+        is_working_day && !is_holiday
     }
 
     pub fn roll_forward(&self, date: NaiveDate) -> NaiveDate {
@@ -106,10 +109,6 @@ impl Calendar {
             result = self.previous_business_day(result);
         }
         result
-    }
-
-    fn is_working_day(&self, date: NaiveDate) -> bool {
-        self.extra_working_dates.contains(&date) || self.working_days.contains(&date.weekday())
     }
 }
 
