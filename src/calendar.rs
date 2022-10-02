@@ -11,32 +11,6 @@ const WORK_WEEK: [Weekday; 5] = [
     Weekday::Fri,
 ];
 
-#[derive(Debug, PartialEq, Deserialize)]
-#[serde(try_from = "CalendarUnchecked")]
-pub struct Calendar {
-    working_days: Vec<Weekday>,
-    holidays: HashSet<NaiveDate>,
-    extra_working_dates: HashSet<NaiveDate>,
-}
-
-#[derive(Debug, PartialEq, Deserialize)]
-struct CalendarUnchecked {
-    working_days: Option<Vec<Weekday>>,
-    holidays: Option<Vec<NaiveDate>>,
-    extra_working_dates: Option<Vec<NaiveDate>>,
-}
-
-impl TryFrom<CalendarUnchecked> for Calendar {
-    type Error = Error;
-    fn try_from(cal: CalendarUnchecked) -> Result<Self, Self::Error> {
-        Calendar::try_new(
-            cal.working_days.unwrap_or(WORK_WEEK.to_vec()),
-            cal.holidays.unwrap_or_default(),
-            cal.extra_working_dates.unwrap_or_default(),
-        )
-    }
-}
-
 #[derive(Debug, PartialEq)]
 pub struct Error(String);
 
@@ -44,6 +18,14 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         self.0.fmt(f)
     }
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(try_from = "CalendarUnchecked")]
+pub struct Calendar {
+    working_days: Vec<Weekday>,
+    holidays: HashSet<NaiveDate>,
+    extra_working_dates: HashSet<NaiveDate>,
 }
 
 impl Calendar {
@@ -126,6 +108,24 @@ impl Calendar {
 
     fn is_working_day(&self, date: &NaiveDate) -> bool {
         self.extra_working_dates.contains(date) || self.working_days.contains(&date.weekday())
+    }
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
+struct CalendarUnchecked {
+    working_days: Option<Vec<Weekday>>,
+    holidays: Option<Vec<NaiveDate>>,
+    extra_working_dates: Option<Vec<NaiveDate>>,
+}
+
+impl TryFrom<CalendarUnchecked> for Calendar {
+    type Error = Error;
+    fn try_from(cal: CalendarUnchecked) -> Result<Self, Self::Error> {
+        Calendar::try_new(
+            cal.working_days.unwrap_or(WORK_WEEK.to_vec()),
+            cal.holidays.unwrap_or_default(),
+            cal.extra_working_dates.unwrap_or_default(),
+        )
     }
 }
 
