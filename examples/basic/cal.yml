@@ -1,0 +1,10 @@
+working_days:
+  - monday
+  - tuesday
+  - wednesday
+  - thursday
+  - friday
+
+holidays:
+  - 2017-12-25 # Christmas, Monday
+  - 2017-12-26 # Boxing Day, Tuesday
