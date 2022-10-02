@@ -12,9 +12,9 @@ const WORK_WEEK: [Weekday; 5] = [
 ];
 
 #[derive(Debug, PartialEq)]
-pub struct Error(String);
+pub struct InvalidCalendarError(String);
 
-impl std::fmt::Display for Error {
+impl std::fmt::Display for InvalidCalendarError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         self.0.fmt(f)
     }
@@ -33,12 +33,14 @@ impl Calendar {
         working_days: Vec<Weekday>,
         holidays: Vec<NaiveDate>,
         extra_working_dates: Vec<NaiveDate>,
-    ) -> Result<Calendar, Error> {
+    ) -> Result<Calendar, InvalidCalendarError> {
         let holidays: HashSet<_> = holidays.into_iter().collect();
         let extra_working_dates: HashSet<_> = extra_working_dates.into_iter().collect();
 
         if !holidays.is_disjoint(&extra_working_dates) {
-            return Err(Error(String::from("Holidays cannot be extra working days")));
+            return Err(InvalidCalendarError(String::from(
+                "Holidays cannot be extra working days",
+            )));
         }
 
         Ok(Self {
@@ -119,7 +121,7 @@ struct CalendarUnchecked {
 }
 
 impl TryFrom<CalendarUnchecked> for Calendar {
-    type Error = Error;
+    type Error = InvalidCalendarError;
     fn try_from(cal: CalendarUnchecked) -> Result<Self, Self::Error> {
         Calendar::try_new(
             cal.working_days.unwrap_or(WORK_WEEK.to_vec()),
@@ -142,7 +144,9 @@ mod tests {
 
         assert_eq!(
             cal,
-            Err(Error(String::from("Holidays cannot be extra working days")))
+            Err(InvalidCalendarError(String::from(
+                "Holidays cannot be extra working days"
+            )))
         );
     }
 
