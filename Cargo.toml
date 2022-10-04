@@ -3,6 +3,17 @@ name = "business"
 version = "0.1.0"
 edition = "2021"
 
+description = "Rust business day calculations"
+readme = "README.md"
+
+homepage = "https://github.com/ameykusurkar/business-rs"
+repository = "https://github.com/ameykusurkar/business-rs.git"
+
+keywords = ["business", "bank", "holiday", "calendar"]
+categories = ["date-and-time"]
+
+license = "MIT"
+
 [dependencies]
 chrono = { version = "0.4.22", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
