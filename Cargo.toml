@@ -15,7 +15,7 @@ categories = ["date-and-time"]
 license = "MIT"
 
 [badges]
-github = { repository = "ameykusurkar/business-rs" }
+maintenance = { status = "experimental" }
 
 [dependencies]
 chrono = { version = "0.4.22", features = ["serde"] }

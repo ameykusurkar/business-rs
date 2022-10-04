@@ -1,4 +1,5 @@
-[![Workflow Status](https://github.com/ameykusurkar/business-rs/workflows/main/badge.svg)](https://github.com/ameykusurkar/business-rs/actions?query=workflow%3A%22main%22)
+[![Workflow Status](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml)
+![Maintenance](https://img.shields.io/badge/maintenance-experimental-blue.svg)
 
 # business
 
@@ -47,5 +48,3 @@ A calendar can be built as such:
 let yml = std::fs::read_to_string("examples/basic/cal.yml").unwrap();
 let cal: Calendar = serde_yaml::from_str(&yml).unwrap();
 ```
-
-License: MIT
