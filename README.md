@@ -8,7 +8,8 @@
 A crate for doing business day calculations. It is a Rust implementation of GoCardless'
 [business](https://github.com/gocardless/business) Ruby gem.
 
-Let's dive right in with an example. For more details, see [`Calendar`].
+Let's dive right in with an example. For more details, see
+[`Calendar`](https://docs.rs/business/latest/business/struct.Calendar.html).
 
 ```rust
 use chrono::NaiveDate;
