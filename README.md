@@ -1,7 +1,9 @@
+# business
+
+[![Crates.io](https://img.shields.io/crates/v/business.svg)](https://crates.io/crates/business)
+[![Documentation](https://docs.rs/business/badge.svg)](https://docs.rs/business/)
 [![Workflow Status](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml)
 ![Maintenance](https://img.shields.io/badge/maintenance-experimental-blue.svg)
-
-# business
 
 A crate for doing business day calculations. It is a Rust implementation of GoCardless'
 [business](https://github.com/gocardless/business) Ruby gem.
