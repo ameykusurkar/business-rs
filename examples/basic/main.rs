@@ -1,4 +1,4 @@
-use business::calendar::Calendar;
+use business::Calendar;
 use chrono::naive::NaiveDate;
 
 fn main() {
