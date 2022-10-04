@@ -28,7 +28,7 @@
 //!
 //! The YAML has to be in the following format:
 //! ```yaml
-//! # Defaults to Mon-Fri is omitted
+//! # Defaults to Mon-Fri if omitted
 //! working_days:
 //!   - monday
 //!   - tuesday
