@@ -1,7 +1,7 @@
 #![deny(missing_docs)]
 
-//! A crate for doing business day calculations. It is a Rust implementation of GoCardless'
-//! [business](https://github.com/gocardless/business) Ruby gem.
+//! A crate for doing business day calculations. It is a Rust implementation of the Ruby
+//! [business](https://github.com/gocardless/business) gem.
 //!
 //! Let's dive right in with an example. For more details, see
 //! [`Calendar`](https://docs.rs/business/latest/business/struct.Calendar.html).
@@ -49,6 +49,7 @@
 //! ```
 
 use std::collections::HashSet;
+use std::ops::Add;
 
 use chrono::{naive::NaiveDate, Datelike, Duration, Weekday};
 use serde::Deserialize;
@@ -123,9 +124,9 @@ impl Calendar {
     /// // Saturday
     /// assert_eq!(cal.is_business_day(NaiveDate::from_ymd(2020, 12, 26)), false);
     /// ```
-    pub fn is_business_day(&self, date: NaiveDate) -> bool {
+    pub fn is_business_day<D: IntoDate>(&self, date: D) -> bool {
         let is_working_day = self.working_days.contains(&date.weekday());
-        let is_holiday = self.holidays.contains(&date);
+        let is_holiday = self.holidays.contains(&date.into_date());
         is_working_day && !is_holiday
     }
 
@@ -143,10 +144,13 @@ impl Calendar {
     /// assert_eq!(cal.roll_forward(sat), mon);
     /// assert_eq!(cal.roll_forward(mon), mon);
     /// ```
-    pub fn roll_forward(&self, date: NaiveDate) -> NaiveDate {
+    pub fn roll_forward<D>(&self, date: D) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = date;
         while !self.is_business_day(result) {
-            result += Duration::days(1);
+            result = result + Duration::days(1);
         }
         result
     }
@@ -165,10 +169,13 @@ impl Calendar {
     /// assert_eq!(cal.roll_backward(sun), fri);
     /// assert_eq!(cal.roll_backward(fri), fri);
     /// ```
-    pub fn roll_backward(&self, date: NaiveDate) -> NaiveDate {
+    pub fn roll_backward<D>(&self, date: D) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = date;
         while !self.is_business_day(result) {
-            result -= Duration::days(1);
+            result = result + Duration::days(-1);
         }
         result
     }
@@ -188,10 +195,13 @@ impl Calendar {
     /// assert_eq!(cal.next_business_day(sat), mon);
     /// assert_eq!(cal.next_business_day(mon), tue);
     /// ```
-    pub fn next_business_day(&self, date: NaiveDate) -> NaiveDate {
+    pub fn next_business_day<D>(&self, date: D) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = date;
         loop {
-            result += Duration::days(1);
+            result = result + Duration::days(1);
             if self.is_business_day(result) {
                 break;
             }
@@ -214,10 +224,13 @@ impl Calendar {
     /// assert_eq!(cal.previous_business_day(sun), fri);
     /// assert_eq!(cal.previous_business_day(fri), thu);
     /// ```
-    pub fn previous_business_day(&self, date: NaiveDate) -> NaiveDate {
+    pub fn previous_business_day<D>(&self, date: D) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = date;
         loop {
-            result -= Duration::days(1);
+            result = result + Duration::days(-1);
             if self.is_business_day(result) {
                 break;
             }
@@ -242,7 +255,10 @@ impl Calendar {
     /// assert_eq!(cal.add_business_days(fri, 1), mon);
     /// assert_eq!(cal.add_business_days(sun, 1), tue);
     /// ```
-    pub fn add_business_days(&self, date: NaiveDate, delta: u32) -> NaiveDate {
+    pub fn add_business_days<D>(&self, date: D, delta: u32) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = self.roll_forward(date);
         for _ in 0..delta {
             result = self.next_business_day(result);
@@ -267,12 +283,32 @@ impl Calendar {
     /// assert_eq!(cal.subtract_business_days(mon, 1), fri);
     /// assert_eq!(cal.subtract_business_days(sun, 1), thu);
     /// ```
-    pub fn subtract_business_days(&self, date: NaiveDate, delta: u32) -> NaiveDate {
+    pub fn subtract_business_days<D>(&self, date: D, delta: u32) -> D
+    where
+        D: IntoDate + Add<Duration, Output = D>,
+    {
         let mut result = self.roll_backward(date);
         for _ in 0..delta {
             result = self.previous_business_day(result);
         }
         result
+    }
+}
+
+/// Types that can be converted into a [`NaiveDate`].
+///
+/// Since the type is [`Datelike`], there is already a default implementation for
+/// `into_date`. Override the implementation if there is an efficient way to convert the type.
+pub trait IntoDate: Datelike + Copy {
+    /// Converts this type into [`NaiveDate`].
+    fn into_date(self) -> NaiveDate {
+        NaiveDate::from_ymd(self.year(), self.month(), self.day())
+    }
+}
+
+impl IntoDate for NaiveDate {
+    fn into_date(self) -> NaiveDate {
+        self
     }
 }
 

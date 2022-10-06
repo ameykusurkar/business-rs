@@ -5,8 +5,8 @@
 [![Workflow Status](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/ameykusurkar/business-rs/actions/workflows/rust.yml)
 ![Maintenance](https://img.shields.io/badge/maintenance-experimental-blue.svg)
 
-A crate for doing business day calculations. It is a Rust implementation of GoCardless'
-[business](https://github.com/gocardless/business) Ruby gem.
+A crate for doing business day calculations. It is a Rust implementation of the Ruby
+[business](https://github.com/gocardless/business) gem.
 
 Let's dive right in with an example. For more details, see
 [`Calendar`](https://docs.rs/business/latest/business/struct.Calendar.html).
