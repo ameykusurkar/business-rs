@@ -287,7 +287,7 @@ mod tests {
     #[test]
     fn sat_is_not_business() {
         let cal = Calendar::workweek();
-        let saturday = NaiveDate::from_ymd(2022, 10, 01);
+        let saturday = NaiveDate::from_ymd_opt(2022, 10, 01).unwrap();
 
         assert_eq!(cal.is_business_day(saturday), false);
     }
@@ -295,14 +295,14 @@ mod tests {
     #[test]
     fn mon_is_business() {
         let cal = Calendar::workweek();
-        let monday = NaiveDate::from_ymd(2022, 10, 03);
+        let monday = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
 
         assert_eq!(cal.is_business_day(monday), true);
     }
 
     #[test]
     fn mon_holiday_is_not_business() {
-        let monday = NaiveDate::from_ymd(2022, 10, 03);
+        let monday = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::with_holidays(&[monday]);
 
         assert_eq!(cal.is_business_day(monday), false);
@@ -310,18 +310,18 @@ mod tests {
 
     #[test]
     fn sat_rolls_forward_to_tues() {
-        let sat = NaiveDate::from_ymd(2022, 10, 01);
-        let holiday_mon = NaiveDate::from_ymd(2022, 10, 03);
+        let sat = NaiveDate::from_ymd_opt(2022, 10, 01).unwrap();
+        let holiday_mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::with_holidays(&[holiday_mon]);
 
-        let business_tue = NaiveDate::from_ymd(2022, 10, 04);
+        let business_tue = NaiveDate::from_ymd_opt(2022, 10, 04).unwrap();
 
         assert_eq!(cal.roll_forward(sat), business_tue);
     }
 
     #[test]
     fn mon_rolls_forward_same_day() {
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::workweek();
 
         assert_eq!(cal.roll_forward(mon), mon);
@@ -329,18 +329,18 @@ mod tests {
 
     #[test]
     fn sun_rolls_backward_to_thu() {
-        let sun = NaiveDate::from_ymd(2022, 10, 02);
-        let holiday_fri = NaiveDate::from_ymd(2022, 09, 30);
+        let sun = NaiveDate::from_ymd_opt(2022, 10, 02).unwrap();
+        let holiday_fri = NaiveDate::from_ymd_opt(2022, 09, 30).unwrap();
         let cal = Calendar::with_holidays(&[holiday_fri]);
 
-        let business_thu = NaiveDate::from_ymd(2022, 09, 29);
+        let business_thu = NaiveDate::from_ymd_opt(2022, 09, 29).unwrap();
 
         assert_eq!(cal.roll_backward(sun), business_thu);
     }
 
     #[test]
     fn mon_rolls_backward_same_day() {
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::workweek();
 
         assert_eq!(cal.roll_backward(mon), mon);
@@ -348,82 +348,82 @@ mod tests {
 
     #[test]
     fn sat_next_business_is_tues() {
-        let sat = NaiveDate::from_ymd(2022, 10, 01);
-        let holiday_mon = NaiveDate::from_ymd(2022, 10, 03);
+        let sat = NaiveDate::from_ymd_opt(2022, 10, 01).unwrap();
+        let holiday_mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::with_holidays(&[holiday_mon]);
 
-        let business_tue = NaiveDate::from_ymd(2022, 10, 04);
+        let business_tue = NaiveDate::from_ymd_opt(2022, 10, 04).unwrap();
 
         assert_eq!(cal.next_business_day(sat), business_tue);
     }
 
     #[test]
     fn mon_next_business_is_tues() {
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::with_holidays(&[]);
 
-        let tue = NaiveDate::from_ymd(2022, 10, 04);
+        let tue = NaiveDate::from_ymd_opt(2022, 10, 04).unwrap();
         assert_eq!(cal.next_business_day(mon), tue);
     }
 
     #[test]
     fn sun_previous_business_is_thu() {
-        let sun = NaiveDate::from_ymd(2022, 10, 02);
-        let holiday_fri = NaiveDate::from_ymd(2022, 09, 30);
+        let sun = NaiveDate::from_ymd_opt(2022, 10, 02).unwrap();
+        let holiday_fri = NaiveDate::from_ymd_opt(2022, 09, 30).unwrap();
         let cal = Calendar::with_holidays(&[holiday_fri]);
 
-        let business_thu = NaiveDate::from_ymd(2022, 09, 29);
+        let business_thu = NaiveDate::from_ymd_opt(2022, 09, 29).unwrap();
 
         assert_eq!(cal.previous_business_day(sun), business_thu);
     }
 
     #[test]
     fn mon_previous_business_is_fri() {
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::with_holidays(&[]);
 
-        let fri = NaiveDate::from_ymd(2022, 09, 30);
+        let fri = NaiveDate::from_ymd_opt(2022, 09, 30).unwrap();
         assert_eq!(cal.previous_business_day(mon), fri);
     }
 
     #[test]
     fn sat_add_2_business_is_thu() {
-        let sat = NaiveDate::from_ymd(2022, 10, 01);
-        let holiday_tues = NaiveDate::from_ymd(2022, 10, 04);
+        let sat = NaiveDate::from_ymd_opt(2022, 10, 01).unwrap();
+        let holiday_tues = NaiveDate::from_ymd_opt(2022, 10, 04).unwrap();
         let cal = Calendar::with_holidays(&[holiday_tues]);
 
-        let business_thu = NaiveDate::from_ymd(2022, 10, 06);
+        let business_thu = NaiveDate::from_ymd_opt(2022, 10, 06).unwrap();
 
         assert_eq!(cal.add_business_days(sat, 2), business_thu);
     }
 
     #[test]
     fn mon_add_2_business_is_wed() {
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
         let cal = Calendar::workweek();
 
-        let wed = NaiveDate::from_ymd(2022, 10, 05);
+        let wed = NaiveDate::from_ymd_opt(2022, 10, 05).unwrap();
 
         assert_eq!(cal.add_business_days(mon, 2), wed);
     }
 
     #[test]
     fn sun_sub_2_business_is_thu() {
-        let sun = NaiveDate::from_ymd(2022, 10, 02);
-        let holiday_fri = NaiveDate::from_ymd(2022, 09, 30);
+        let sun = NaiveDate::from_ymd_opt(2022, 10, 02).unwrap();
+        let holiday_fri = NaiveDate::from_ymd_opt(2022, 09, 30).unwrap();
         let cal = Calendar::with_holidays(&[holiday_fri]);
 
-        let business_thu = NaiveDate::from_ymd(2022, 09, 27);
+        let business_thu = NaiveDate::from_ymd_opt(2022, 09, 27).unwrap();
 
         assert_eq!(cal.subtract_business_days(sun, 2), business_thu);
     }
 
     #[test]
     fn wed_sub_2_business_is_mon() {
-        let wed = NaiveDate::from_ymd(2022, 10, 05);
+        let wed = NaiveDate::from_ymd_opt(2022, 10, 05).unwrap();
         let cal = Calendar::workweek();
 
-        let mon = NaiveDate::from_ymd(2022, 10, 03);
+        let mon = NaiveDate::from_ymd_opt(2022, 10, 03).unwrap();
 
         assert_eq!(cal.subtract_business_days(wed, 2), mon);
     }
@@ -445,8 +445,8 @@ mod tests {
         let expected = Calendar {
             working_days: HashSet::from([Weekday::Mon, Weekday::Tue, Weekday::Fri]),
             holidays: HashSet::from([
-                NaiveDate::from_ymd(2022, 1, 1),
-                NaiveDate::from_ymd(2012, 12, 25),
+                NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+                NaiveDate::from_ymd_opt(2012, 12, 25).unwrap(),
             ]),
         };
 
@@ -463,8 +463,8 @@ mod tests {
         let cal: Calendar = serde_yaml::from_str(input).unwrap();
 
         let expected = Calendar::with_holidays(&[
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2012, 12, 25),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2012, 12, 25).unwrap(),
         ]);
 
         assert_eq!(cal, expected);

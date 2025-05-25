@@ -5,7 +5,7 @@ fn main() {
     let yml = std::fs::read_to_string("examples/basic/cal.yml").unwrap();
     let cal: Calendar = serde_yaml::from_str(&yml).unwrap();
 
-    let xmas = NaiveDate::from_ymd(2017, 12, 25);
+    let xmas = NaiveDate::from_ymd_opt(2017, 12, 25).unwrap();
     let last_business_day = cal.roll_backward(xmas);
 
     println!(
